@@ -1,17 +1,38 @@
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
 
+#define nodebug
 #define MaxBuffer 99;
+
 int DebugLed = 13;
 SoftwareSerial ComputerSerial; // RX = 0, TX = 1  See REF folder thanks to https://mechatronicsblog.com/
 
 char buffer[99];
 
+#ifdef debug 
+void Print_string_car(String &str){
+    char car;
+    Serial.println("String to debug : " + str);
+    for(int i = 0; i<str.length(); i++){
+    car = str.charAt(i);
+    Serial.println("==========");
+    Serial.print("\n car position : ");
+    Serial.print(i,DEC);
+    Serial.println();
+    Serial.println(car,DEC);
+    Serial.println(car,HEX);
+    Serial.println(car);
+    Serial.println("==========");
+    }
+    
+}
+#endif
+
 void setup() {
   pinMode(DebugLed, OUTPUT);
   Serial.begin(9600,SERIAL_8N1);
   ComputerSerial.begin(9600,SWSERIAL_8N1,5,4);
-  ComputerSerial.println("Hello");
+  ComputerSerial.setTimeout(99999999);
 //    while (!Serial && !ComputerSerial);
 ///9 600 N 8 1
     
@@ -26,6 +47,17 @@ bool wait_Led(int led ,bool state){
   }  
   return !state;
 }
+//receive string and delete /n
+String RX_str(){
+    String  rx_str = ComputerSerial.readStringUntil(13);
+    for(int i = 0; i < rx_str.length(); i++){
+      if(rx_str.charAt(i) == 13){
+        rx_str.setCharAt(i,NULL);
+      }
+    }
+  return rx_str;
+}
+
 
 void init_Wifi_Over_Serial(){
   String ssid = "";
@@ -34,41 +66,46 @@ void init_Wifi_Over_Serial(){
   int numberTrying = 0 ; 
   int ConnectedFlashTimerLED = 0;
   bool FlashState = false;
-
+  
   while(!succes){
      Serial.print("\n Enter Wifi SSID : ");
      while(ssid == ""){
-       ssid = ComputerSerial.readStringUntil('\n');
+       //ssid = ComputerSerial.readStringUntil('\n');
+       ssid = RX_str();
        if(ConnectedFlashTimerLED + 100 < millis()){
         FlashState = wait_Led(DebugLed,FlashState);
         ConnectedFlashTimerLED = millis();
        }
-     }
      Serial.print("\n" + ssid);    
  
      Serial.print("\n Enter Wifi Password : ");
      while(password == ""){
-       password = ComputerSerial.readStringUntil('\n');
-
-       if(ConnectedFlashTimerLED + 100 < millis()){
-        FlashState = wait_Led(DebugLed,FlashState);
-        ConnectedFlashTimerLED = millis();
-       }
-       
-
-       
+       //password = ComputerSerial.readStringUntil('\n');
+        password = RX_str();
      }
-      
-     WiFi.begin(ssid, password); 
+
+    Serial.print("\n" + password);   
+      #ifdef debug
+      Print_string_car(ssid);
+      Print_string_car(password);
+      #endif
+
+     //WiFi.begin(ssid, password); 
+     WiFi.begin(ssid,password); 
       
       Serial.print("\n Connecting")    ;
   
-     while (WiFi.status() != WL_CONNECTED && numberTrying < 10)
+     while (WiFi.status() != WL_CONNECTED && numberTrying < 50)
      {
-       delay(500);
-       Serial.print(".");
-       numberTrying++;
-
+       if(ConnectedFlashTimerLED + 500 < millis()){
+        FlashState = wait_Led(DebugLed,FlashState);
+        ConnectedFlashTimerLED = millis();
+        //for debug 
+        Serial.print("\n try number : ");
+        Serial.println(numberTrying,DEC);
+        numberTrying++;
+       }
+      yield();
      }
      if(WiFi.status() == WL_CONNECTED){
        succes = true;
@@ -89,6 +126,7 @@ void init_Wifi_Over_Serial(){
     digitalWrite(DebugLed,HIGH);
 
   Serial.println();
+  }
   
 }
 void Serialdebug(){
@@ -108,12 +146,9 @@ void Serialdebug(){
 void Menu(){
 
   Serial.print("Menu \n");
-  ComputerSerial.print("Menu \n");
-
-
   String choice = "";
   while(choice == ""){
-    choice = ComputerSerial.readStringUntil('\n');
+    choice = ComputerSerial.readStringUntil(13);
 
   }
 
@@ -124,7 +159,6 @@ void Menu(){
 
   switch((choice.charAt(0) - '0')){
     case 1 :
-    Serial.print("CASE 1 \n");
     init_Wifi_Over_Serial();
     break;
   } 

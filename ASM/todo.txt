@@ -1,0 +1,3 @@
+wait for ok signal 
+check if valid car 
+Menu GUI
