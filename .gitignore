@@ -13,3 +13,5 @@
 # End of https://www.toptal.com/developers/gitignore/api/vscode
 
 #ASM_X86
+serial.out
+ASM/Run.bat

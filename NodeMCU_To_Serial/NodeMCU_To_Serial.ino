@@ -1,4 +1,5 @@
 #include <ESP8266WiFi.h>
+#include <ESP8266Ping.h>
 #include <SoftwareSerial.h>
 
 #define nodebug
@@ -57,7 +58,6 @@ String RX_str(){
     }
   return rx_str;
 }
-
 
 void init_Wifi_Over_Serial(){
   String ssid = "";
@@ -143,23 +143,80 @@ void Serialdebug(){
 
 
 }
+
+void Init_Serial(){
+  bool Connect_Succes = false;
+  char rx_Succes = NULL;
+  int NextTryTimer = 0;
+  char succesCar = '=';
+  Serial.println("Waiting for the ASM CLIENT on Serial");
+  while(!Connect_Succes){
+    if(NextTryTimer + 100 < millis()){
+    ComputerSerial.print(succesCar);
+    rx_Succes = ComputerSerial.read();
+    if(rx_Succes == '='){
+      Connect_Succes = true;
+    }
+    else
+    {
+      NextTryTimer = millis();
+    }
+    
+  }
+  yield();
+  }
+
+  Serial.println("Succes!!!!!");
+
+}
+
+char* toChar(String str){
+
+    char convertstr[str.length()+1];
+    for(int i = 0; i < str.length(); i++){
+      convertstr[i] = str.charAt(i);
+    }
+
+    return convertstr;
+
+}
+
+void PingTest(){
+    Serial.println("Ping Test");
+    String host = RX_str();
+
+    Serial.println("Host to Ping : ");
+    Serial.println(host);
+    if(Ping.ping(toChar(host))){
+      ComputerSerial.print('S');
+      Serial.println("Succes");
+    }
+    else{
+        ComputerSerial.print('F');
+        Serial.println("Fail");
+
+    }
+  
+}
+
 void Menu(){
 
   Serial.print("Menu \n");
   String choice = "";
   while(choice == ""){
     choice = ComputerSerial.readStringUntil(13);
-
+    #ifdef debug 
+    Print_string_car(choice);
+    #endif
   }
-
-  Serial.print("Choice = " + choice + "\n");
-  Serial.println(choice.length(), DEC);
-  Serial.print("\n");
-
 
   switch((choice.charAt(0) - '0')){
     case 1 :
     init_Wifi_Over_Serial();
+    PingTest();
+    break;
+    case 2:
+    PingTest();
     break;
   } 
 
@@ -168,6 +225,7 @@ void Menu(){
 
 void loop() {
   //digitalWrite(DebugLed,HIGH);
+  //Init_Serial();
   Menu();
   //Serialdebug();
 
