@@ -213,10 +213,12 @@ void Menu(){
   switch((choice.charAt(0) - '0')){
     case 1 :
     init_Wifi_Over_Serial();
-    PingTest();
     break;
     case 2:
     PingTest();
+    break;
+    default:
+    Serial.print("Invalide choice ");
     break;
   } 
 

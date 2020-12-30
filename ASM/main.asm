@@ -32,8 +32,10 @@ Connexion_Succes_str db 'Connect Succes$'
 Menu_str db 'MENU$'
 Menu_GUI_str db '==============$'
 Menu_Choice_1_str db '1.Configurer WiFi$'
-Menu_Choice_2_str db '2.Exit$'
+Menu_Choice_2_str db '2.Ping Server$'
+Menu_Choice_3_str db '3.Exit$'
 Menu_Choice_user  db 'Enter A valid key : $'
+Menu_Choice_err_str  db 'Error with this choice! $'
 WiFi_ssid_str db 'Enter WiFi ssid : $'
 WiFi_password_str db 'Enter WiFi password : $'
 Host_add_str      db 'Enter Hostname to PING :$'
@@ -63,7 +65,7 @@ listing:
 ;    JNE e_if_retSucces
 ;    MOV MainLoop,true   
 ;e_if_retSucces:
-
+    MOV MainLoop, true
 while_main_loop:
 
     MOV  DX, OFFSET Menu_str
@@ -82,6 +84,11 @@ while_main_loop:
     POP Trash
     
     MOV DX, OFFSET Menu_Choice_2_str
+    PUSH DX
+    CALL Print_String
+    POP Trash
+    
+    MOV DX, OFFSET Menu_Choice_3_str
     PUSH DX
     CALL Print_String
     POP Trash
@@ -105,11 +112,6 @@ while_main_loop:
     MOV DL, Menu_choice
     INT 33
     
-
-if_Menu_valide_choice:
-    CMP Menu_choice,'1'
-    JNE e_if_Menu_valide_choice
-
     MOV AL,Menu_choice
     MOV AH,0
     PUSH AX
@@ -122,14 +124,12 @@ if_Menu_valide_choice:
     CALL TX_Com
     POP trash 
 
-e_if_Menu_valide_choice:
-
 switch_menu_choice:
-    CMP Menu_choice, '1'
-    JE switch_menu_choice_c1
-    JMP e_switch_menu_choice_c1
+
 
 switch_menu_choice_c1:                  ;{
+    CMP Menu_choice, '1'
+    JNE eswitch_menu_choice_c1
     MOV DX, OFFSET WiFi_ssid_str
     PUSH DX
     CALL Print_String_no_space
@@ -147,20 +147,39 @@ switch_menu_choice_c1:                  ;{
 
     CALL TX_str_Com
 
- 
-e_switch_menu_choice_c1:
+    JMP e_switch_menu_choice
+eswitch_menu_choice_c1:
 
 switch_menu_choice_c2:
-    MOV DX, OFFSET Menu_Choice_user
+    CMP Menu_choice, '2'
+    JNE e_switch_menu_choice_c2
+    MOV DX, OFFSET Host_add_str
     PUSH DX
-    CALL Print_String_no_space
+    CALL Print_String
     POP Trash
 
-eswitch_menu_choice_c2:
+    CALL TX_str_Com
+
+    JMP e_switch_menu_choice
+e_switch_menu_choice_c2:
+
 switch_menu_choice_c3:
+    CMP Menu_choice, '3'
+    JNE e_switch_menu_choice_c3
     MOV MainLoop,false
+    JMP e_switch_menu_choice
 
 e_switch_menu_choice_c3:
+
+;DEFAULT 
+e_switch_menu_choice_c_default:
+
+    MOV DX, OFFSET Menu_Choice_err_str
+    PUSH DX
+    CALL Print_String_no_space
+    POP Trash  
+
+switch_menu_choice_c_default:
 
 e_switch_menu_choice:
 

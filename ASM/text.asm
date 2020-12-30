@@ -11,19 +11,25 @@ Print_String                           PROC NEAR
 			PUSH BP
 			MOV BP,SP
 			PUSH AX
-	
+
+			MOV AH,02H
+			MOV DL,10					;printf("\n")
+			INT 21H		
+			MOV AH,02H
+			MOV DL,13					;printf(13)
+			INT 21h		
 			
 			MOV AH,09h
 			MOV DX,str					;printf("%s",str);
 			INT 21H
 					
-			MOV AH,02H
-			MOV DL,10					;printf("\n")
-			INT 21H	
-			
-			MOV AH,02H
-			MOV DL,13					;printf(13)
-			INT 21h			
+			;MOV AH,02H
+			;MOV DL,10					;printf("\n")
+			;INT 21H	
+			;
+			;MOV AH,02H
+			;MOV DL,13					;printf(13)
+			;INT 21h			
 			
 			POP AX	
 			MOV SP,BP
