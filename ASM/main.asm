@@ -137,30 +137,7 @@ switch_menu_choice_c1:                  ;{
     MOV Continue,true 
 
     CALL TX_str_Com
-;while_SSID_str:
-;    MOV AH, 08			
-;	INT 33		            ;input  = getchar();
-;	MOV TX_car, AL
-;    MOV AH, 2		           ;printf("%c",input)
-;    MOV DL, TX_car
-;    INT 33
-;    
-;    MOV AL,TX_car
-;    MOV AH,0
-;    PUSH AX
-;    CALL TX_Com
-;    POP trash 
-;
-;if_SSID_str:                        ;if(car == return)
-;    CMP TX_car,13
-;    JNE e_if_SSID_str
-;    MOV Continue, false
-;    
-;e_if_SSID_str:
-;    CMP Continue,true
-;    JE while_SSID_str
-;
-;e_while_SSID_str:
+
     MOV Continue, true
 
     MOV DX, OFFSET WiFi_password_str
@@ -169,31 +146,7 @@ switch_menu_choice_c1:                  ;{
     POP Trash    
 
     CALL TX_str_Com
-;while_PASS_str:
-;    MOV  AH, 08			
-;	INT  33		            ;input  = getchar();
-;	MOV  TX_car, AL
-;    MOV  AH, 2		           ;printf("%c",input)
-;    MOV  DL, TX_car
-;    INT  33
-;    
-;    MOV AL,TX_car
-;    MOV AH,0
-;    PUSH AX
-;    CALL TX_Com
-;    POP trash 
-;
-;if_PASS_str:                        ;if(car == return)
-;    CMP TX_car,13
-;    JNE e_if_PASS_str
-;    MOV Continue, false
-;
-;    
-;e_if_PASS_str:
-;    CMP Continue,true
-;    JE while_PASS_str
-;
-;e_while_PASS_str:
+
  
 e_switch_menu_choice_c1:
 
