@@ -4,6 +4,8 @@
 
 #define nodebug
 #define MaxBuffer 99;
+#define Servport 3012
+#define MaxTimeOut 99999999
 
 int DebugLed = 13;
 SoftwareSerial ComputerSerial; // RX = 0, TX = 1  See REF folder thanks to https://mechatronicsblog.com/
@@ -33,7 +35,7 @@ void setup() {
   pinMode(DebugLed, OUTPUT);
   Serial.begin(9600,SERIAL_8N1);
   ComputerSerial.begin(9600,SWSERIAL_8N1,5,4);
-  ComputerSerial.setTimeout(99999999);
+  ComputerSerial.setTimeout(MaxTimeOut);
 //    while (!Serial && !ComputerSerial);
 ///9 600 N 8 1
     
@@ -199,6 +201,47 @@ void PingTest(){
   
 }
 
+void StartServer(){
+  if(WiFi.isConnected()){
+    WiFiServer server(Servport);
+    WiFiClient client;
+    String clientMSG;
+    bool Connected = false;
+    server.begin();
+
+    Serial.print("Starting server listening on :");
+    Serial.print(WiFi.localIP());
+    Serial.print(":");
+    Serial.print(server.port());
+    Serial.println();
+
+    while(server.status()){
+      if(server.hasClient() && !Connected){
+        client = server.available();
+        client.setTimeout(MaxTimeOut);
+        Connected = true;
+      }
+      if(server.hasClient() && Connected){
+        server.println("MAX CLIENT");
+        
+      }
+      else{
+       Serial.println(client.readStringUntil('\n'));
+            
+      }
+      yield();
+    }
+ 
+
+  }
+  else
+  {
+    Serial.println("Error not connected ");
+  }
+  
+
+}
+
 void Menu(){
 
   Serial.print("Menu \n");
@@ -216,6 +259,9 @@ void Menu(){
     break;
     case 2:
     PingTest();
+    break;
+    case 3:
+    StartServer();
     break;
     default:
     Serial.print("Invalide choice ");

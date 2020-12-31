@@ -33,13 +33,14 @@ Menu_str db 'MENU$'
 Menu_GUI_str db '==============$'
 Menu_Choice_1_str db '1.Configurer WiFi$'
 Menu_Choice_2_str db '2.Ping Server$'
-Menu_Choice_3_str db '3.Exit$'
+Menu_Choice_3_str db '3.Start WiFi Server$'
+Menu_Choice_4_str db '4.Exit$'
 Menu_Choice_user  db 'Enter A valid key : $'
 Menu_Choice_err_str  db 'Error with this choice! $'
 WiFi_ssid_str db 'Enter WiFi ssid : $'
 WiFi_password_str db 'Enter WiFi password : $'
 Host_add_str      db 'Enter Hostname to PING :$'
-
+Starting_Server_str  db 'Starting server...:$'
 
 .CODE
 
@@ -87,8 +88,13 @@ while_main_loop:
     PUSH DX
     CALL Print_String
     POP Trash
-    
+
     MOV DX, OFFSET Menu_Choice_3_str
+    PUSH DX
+    CALL Print_String
+    POP Trash
+
+    MOV DX, OFFSET Menu_Choice_4_str
     PUSH DX
     CALL Print_String
     POP Trash
@@ -166,10 +172,20 @@ e_switch_menu_choice_c2:
 switch_menu_choice_c3:
     CMP Menu_choice, '3'
     JNE e_switch_menu_choice_c3
+    MOV DX, OFFSET Menu_Choice_3_str
+    PUSH DX
+    CALL Print_String
+    POP Trash
+
+e_switch_menu_choice_c3:
+
+switch_menu_choice_c4:
+    CMP Menu_choice, '4'
+    JNE e_switch_menu_choice_c4
     MOV MainLoop,false
     JMP e_switch_menu_choice
 
-e_switch_menu_choice_c3:
+e_switch_menu_choice_c4:
 
 ;DEFAULT 
 e_switch_menu_choice_c_default:
